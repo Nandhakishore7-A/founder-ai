@@ -1,55 +1,40 @@
 ---
-title: Founder AI
+title: VAPE.AI
 emoji: 🚀
 colorFrom: blue
 colorTo: indigo
-sdk: gradio
-app_file: app.py
-python_version: "3.11"
+sdk: static
+app_file: index.html
 license: mit
 ---
 
-# Founder AI
+# VAPE.AI
 
-A small open-source chat starter for founders: clarify ideas, plan validation,
-and scope an MVP. Model inference runs through Hugging Face Inference Providers;
-no model files are downloaded to your computer or to the Space.
+An open-source founder chat prototype for validating ideas, planning MVPs, and drafting product work.
 
-This is the first milestone, not the complete agent platform. It does not yet
-connect to external apps, execute code, deploy products, or persist projects.
+- Interface: Hugging Face Static Space (`index.html`).
+- Backend: Cloudflare Worker (`worker.mjs`) with a Workers AI binding named `AI`.
+- Model: Qwen2.5-Coder-32B-Instruct, whose model weights carry Apache-2.0. Application code is MIT licensed. This is an existing model, not a newly trained model.
+- No model downloads or API tokens in the browser.
 
-## Setup
+## Current scope
 
-Deployment status: not deployed. On September 22, 2026, the owner's Space
-creation screen required a paid plan for Gradio and Docker; only Static was
-available free. This Python starter cannot run as a Static Space. A different
-backend host is needed to continue with a zero-budget deployment. Never place
-the owner's API token in static browser code.
+Chat and planning only. App connections, persistent projects, code execution, and deployment tools are not implemented. The assistant must not claim otherwise.
 
-Read START-HERE.md. Configure a Space secret named HF_TOKEN with permission to
-call Inference Providers, plus a variable named MODEL_ID identifying a currently
-provider-supported chat model. Check the model's own license separately; the MIT
-license in this repository applies only to this application's code.
+Messages are processed by Cloudflare Workers AI. Conversations remain in page memory and disappear on refresh. Hosting/provider logging policies still apply. The app does not log message bodies or write conversations to a database.
 
-The API is metered separately from Space hosting. This demo allows 30 requests
-across all users per process lifetime. Restarts reset that counter, and failed
-requests count. This is a basic experiment limit, not a durable spending cap.
-Do not enable paid usage without setting and understanding provider billing limits.
+The free AI allocation is shared across visitors. Stay on Workers Free to avoid metered overage; requests fail after its allowance is exhausted. The per-IP five-request/minute guard is best-effort per Worker isolate, not durable global abuse protection. CORS is not authentication. Add durable quotas, user authentication, and appropriate account integrations before broader use.
 
-Messages are sent to Hugging Face and its selected inference provider. The app
-does not deliberately write conversations to disk. Provider and hosting policies
-still apply. The app has no per-user account system or durable rate limiting yet.
+## Deploy
 
-## Verification status
+Create a Cloudflare Worker and paste worker.mjs into its editor. Add a Workers AI binding named AI. For CLI deployment use wrangler.jsonc. Set the allowed frontend origin in worker.mjs, and the deployed Worker URL in index.html.
 
-Python syntax and isolated response-handling checks were run during preparation.
-Live model calls, UI startup, and cloud deployment remain to be tested after
-account setup. Dependency ranges should be locked to the tested versions after
-the first successful Space build.
+Create a public Hugging Face Static Space and upload index.html, this README.md, and LICENSE. Neither Space secrets nor browser code should contain owner API keys. Source is maintained on GitHub; uploads are currently manual.
 
-## Official references
+The original app.py and requirements.txt are a legacy Gradio starter, not used by this deployment. Gradio Spaces required a paid plan on this account at setup.
 
-- https://huggingface.co/docs/hub/spaces-overview
-- https://huggingface.co/docs/huggingface_hub/package_reference/inference_client
-- https://huggingface.co/docs/inference-providers/pricing
-- https://huggingface.co/docs/hub/spaces-github-actions
+## Model and hosting references
+
+- https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct
+- https://developers.cloudflare.com/workers-ai/models/qwen2.5-coder-32b-instruct/
+- https://developers.cloudflare.com/workers-ai/platform/pricing/
